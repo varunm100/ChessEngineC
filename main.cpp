@@ -33,7 +33,7 @@ char ChessBoard[8][8] = {
 	{'r','n','b','k','q','b','n','r'},
 	{'p','p','p','p','p','p','p','p'},
 	{'#','#','#','#','#','#','#','#'},
-	{'#','#','#','r','#','#','#','#'},
+	{'#','#','#','#','#','#','#','#'},
 	{'#','#','#','#','#','#','#','#'},
 	{'#','#','#','#','#','#','#','#'},
 	{'p','p','p','p','p','p','p','p'},
@@ -43,7 +43,7 @@ int ChessBoardBoolC[8][8] = {
 	{1,1,1,1,1,1,1,1},
 	{1,1,1,1,1,1,1,1},
 	{0,0,0,0,0,0,0,0},
-	{0,0,0,2,0,0,0,0},
+	{0,0,0,0,0,0,0,0},
 	{0,0,0,0,0,0,0,0},
 	{0,0,0,0,0,0,0,0},
 	{2,2,2,2,2,2,2,2},
@@ -66,7 +66,7 @@ void PrintBoard() {
 			if (ChessBoardBoolC[a][b] == 1) {
 				cout << BOLDRED << ChessBoard[a][b] << RESET << " | ";
 			} else if (ChessBoardBoolC[a][b] == 2) {
-				cout << BOLDBLACK << ChessBoard[a][b] << RESET << " | ";
+				cout << BOLDGREEN << ChessBoard[a][b] << RESET << " | ";
 			} else {
 				cout << ChessBoard[a][b] << " | ";
 			}
@@ -94,22 +94,6 @@ void SaveBoardToLog() {
 	fout << endl;
 }
 
-void MovePiece(int StartIndex, int StartIndexY, int EndIndex, int EndIndexY) {
-	if (ChessBoard[StartIndex][StartIndexY] == '#') {
-		PrintError("The selected location has no containing piece!");
-	} else if (ChessBoard[EndIndex][EndIndexY] != '#') {
-		PrintError("Could Not Move Piece to location because a piece is already there!");
-	} else if (StartIndex < 8 && StartIndexY < 8 && EndIndex < 8 && EndIndexY < 8) {
-		ChessBoardBoolC[EndIndex][EndIndexY] = ChessBoardBoolC[StartIndex][StartIndexY];
-		ChessBoardBoolC[StartIndex][StartIndexY] = 0;
-		
-		ChessBoard[EndIndex][EndIndexY] = ChessBoard[StartIndex][StartIndexY];
-		ChessBoard[StartIndex][StartIndexY] = '#';
-	} else {
-		PrintError("Could Not Move Piece Because Input Location Does Not Exist!");
-	}
-}
-
 bool CheckLimitFoo(int _LimitRowMax, int _LimitColMax) {
 	if (_LimitRowMax <= 7 && _LimitRowMax >= 0 && _LimitColMax >= 0 && _LimitColMax <= 7) {
 		return true;
@@ -120,8 +104,9 @@ bool CheckLimitFoo(int _LimitRowMax, int _LimitColMax) {
 
 vector<int> GetMovePossFromXY(int _Row, int _Col) {
 	vector<int> _PieceCombinationV;
-	if(ChessBoard[_Col][_Row] == '#') {
+	if(ChessBoard[_Row][_Col] == '#') {
 		PrintError("Selected Location Does Not Contain Piece!");
+		cout << ChessBoard[_Col][_Row] << endl;
 		return _PieceCombinationV;
 	}
 	bool _IsRed = false;
@@ -141,7 +126,11 @@ vector<int> GetMovePossFromXY(int _Row, int _Col) {
 		}
 	}
 	fill(_ChessCheckLimits[0], _ChessCheckLimits[0] + 8 * 8, std::numeric_limits<double>::quiet_NaN());
-
+	//Some important Stuff
+	int BoolToNum = ChessBoardBoolC[_Row][_Col];
+	int BoolToNumOpp = 0;
+	if (BoolToNum == 1){BoolToNumOpp = 2;} else if (BoolToNum == 2) {BoolToNumOpp = 1;}
+	//Ending to important stuff
 	switch(ChessBoard[_Row][_Col]) {
 		case 'p':
 			if (_IsRed) {
@@ -283,24 +272,381 @@ vector<int> GetMovePossFromXY(int _Row, int _Col) {
 					}
 				}
 			} else {
-				PrintError("ERROR while proccessing rook");
+				PrintError("ERROR while proccessing rook piece");
 			}
 			break;
 		case 'n':
+			if (_IsRed) {
+				//Up and Down
+				if (CheckLimitFoo(_Row+2,_Col+1) && ChessBoardBoolC[_Row+2][_Col+1] != 1) {
+					_PieceCombinationV.push_back(_Row+2);
+					_PieceCombinationV.push_back(_Col+1);
+				}
+				if (CheckLimitFoo(_Row+2,_Col-1) && ChessBoardBoolC[_Row+2][_Col-1] != 1) {
+					_PieceCombinationV.push_back(_Row+2);
+					_PieceCombinationV.push_back(_Col-1);
+				}
+				if (CheckLimitFoo(_Row-2,_Col+1) && ChessBoardBoolC[_Row-2][_Col+1] != 1) {
+					_PieceCombinationV.push_back(_Row-2);
+					_PieceCombinationV.push_back(_Col+1);
+				}
+				if (CheckLimitFoo(_Row-2,_Col-1) && ChessBoardBoolC[_Row-2][_Col-1] != 1) {
+					_PieceCombinationV.push_back(_Row-2);
+					_PieceCombinationV.push_back(_Col-1);
+				}
+
+
+				if (CheckLimitFoo(_Row+1,_Col+2) && ChessBoardBoolC[_Row+1][_Col+2] != 1) {
+					_PieceCombinationV.push_back(_Row+1);
+					_PieceCombinationV.push_back(_Col+2);
+				}
+				if (CheckLimitFoo(_Row+1,_Col-2) && ChessBoardBoolC[_Row+1][_Col-2] != 1) {
+					_PieceCombinationV.push_back(_Row+1);
+					_PieceCombinationV.push_back(_Col-2);
+				}
+				if (CheckLimitFoo(_Row-1,_Col+2) && ChessBoardBoolC[_Row-1][_Col+2] != 1) {
+					_PieceCombinationV.push_back(_Row-1);
+					_PieceCombinationV.push_back(_Col+2);
+				}
+				if (CheckLimitFoo(_Row-1,_Col-2) && ChessBoardBoolC[_Row-1][_Col-2] != 1) {
+					_PieceCombinationV.push_back(_Row-1);
+					_PieceCombinationV.push_back(_Col-2);
+				}
+			} else if (_IsBlack) {
+				
+				if (CheckLimitFoo(_Row+2,_Col+1) && ChessBoardBoolC[_Row+2][_Col+1] != 2) {
+					_PieceCombinationV.push_back(_Row+2);
+					_PieceCombinationV.push_back(_Col+1);
+				}
+				if (CheckLimitFoo(_Row+2,_Col-1) && ChessBoardBoolC[_Row+2][_Col-1] != 2) {
+					_PieceCombinationV.push_back(_Row+2);
+					_PieceCombinationV.push_back(_Col-1);
+				}
+				if (CheckLimitFoo(_Row-2,_Col+1) && ChessBoardBoolC[_Row-2][_Col+1] != 2) {
+					_PieceCombinationV.push_back(_Row-2);
+					_PieceCombinationV.push_back(_Col+1);
+				}
+				if (CheckLimitFoo(_Row-2,_Col-1) && ChessBoardBoolC[_Row-2][_Col-1] != 2) {
+					_PieceCombinationV.push_back(_Row-2);
+					_PieceCombinationV.push_back(_Col-1);
+				}
+				
+
+				if (CheckLimitFoo(_Row+1,_Col+2) && ChessBoardBoolC[_Row+1][_Col+2] != 2) {
+					_PieceCombinationV.push_back(_Row+1);
+					_PieceCombinationV.push_back(_Col+2);
+				}
+				if (CheckLimitFoo(_Row+1,_Col-2) && ChessBoardBoolC[_Row+1][_Col-2] != 2) {
+					_PieceCombinationV.push_back(_Row+1);
+					_PieceCombinationV.push_back(_Col-2);
+				}
+				if (CheckLimitFoo(_Row-1,_Col+2) && ChessBoardBoolC[_Row-1][_Col+2] != 2) {
+					_PieceCombinationV.push_back(_Row-1);
+					_PieceCombinationV.push_back(_Col+2);
+				}
+				if (CheckLimitFoo(_Row-1,_Col-2) && ChessBoardBoolC[_Row-1][_Col-2] != 2) {
+					_PieceCombinationV.push_back(_Row-1);
+					_PieceCombinationV.push_back(_Col-2);
+				}
+			} else {
+				PrintError("ERROR while proccessing knight piece");
+			}
 			break;
 		case 'b':
+			for (int i = 1; i < 8; i++) {
+				if (ChessBoardBoolC[_Row+i][_Col+i] == BoolToNum) {
+					break;
+				}
+				if (CheckLimitFoo(_Row+i,_Col+i) && ChessBoardBoolC[_Row+i][_Col+i] != BoolToNum) {
+					_PieceCombinationV.push_back(_Row+i);
+					_PieceCombinationV.push_back(_Col+i);
+					if (ChessBoardBoolC[_Row+i][_Col+i] == BoolToNumOpp) {
+						break;
+					}
+				}
+			}
+			
+			for (int i = 1; i < 8; i++) {
+				if (ChessBoardBoolC[_Row+i][_Col-i] == BoolToNum) {
+					break;
+				}
+				if (CheckLimitFoo(_Row+i,_Col-i) && ChessBoardBoolC[_Row+i][_Col-i] != BoolToNum) {
+					_PieceCombinationV.push_back(_Row+i);
+					_PieceCombinationV.push_back(_Col-i);
+					if (ChessBoardBoolC[_Row+i][_Col-i] == BoolToNumOpp) {
+						break;
+					}
+				}
+			}
+
+			for (int i = 1; i < 8; i++) {
+				if (ChessBoardBoolC[_Row-i][_Col+i] == BoolToNum) {
+					break;
+				}
+				if (CheckLimitFoo(_Row-i,_Col+i) && ChessBoardBoolC[_Row-i][_Col+i] != BoolToNum) {
+					_PieceCombinationV.push_back(_Row-i);
+					_PieceCombinationV.push_back(_Col+i);
+					if (ChessBoardBoolC[_Row-i][_Col+i] == BoolToNumOpp) {
+						break;
+					}
+				}
+			}
+
+			for (int i = 1; i < 8; i++) {
+				if (ChessBoardBoolC[_Row-i][_Col-i] == BoolToNum) {
+					break;
+				}
+				if (CheckLimitFoo(_Row-i,_Col-i) && ChessBoardBoolC[_Row-i][_Col-i] != BoolToNum) {
+					_PieceCombinationV.push_back(_Row-i);
+					_PieceCombinationV.push_back(_Col-i);
+					if (ChessBoardBoolC[_Row-i][_Col-i] == BoolToNumOpp) {
+						break;
+					}
+				}
+			}
 			break;
 		case 'k':
+			if (CheckLimitFoo(_Row+1,_Col+1) && ChessBoardBoolC[_Row+1][_Col+1] != BoolToNum) {
+				_PieceCombinationV.push_back(_Row+1);
+				_PieceCombinationV.push_back(_Col+1);
+			}
+			if (CheckLimitFoo(_Row-1,_Col+1) && ChessBoardBoolC[_Row-1][_Col+1] != BoolToNum) {
+				_PieceCombinationV.push_back(_Row-1);
+				_PieceCombinationV.push_back(_Col+1);	
+			}
+			if (CheckLimitFoo(_Row+1,_Col-1) && ChessBoardBoolC[_Row+1][_Col-1] != BoolToNum) {
+				_PieceCombinationV.push_back(_Row+1);
+				_PieceCombinationV.push_back(_Col-1);
+			}
+			if (CheckLimitFoo(_Row-1,_Col-1) && ChessBoardBoolC[_Row-1][_Col-1] != BoolToNum) {
+				_PieceCombinationV.push_back(_Row-1);
+				_PieceCombinationV.push_back(_Col-1);
+			}
+
+			if (CheckLimitFoo(_Row-1,_Col) && ChessBoardBoolC[_Row-1][_Col] != BoolToNum) {
+				_PieceCombinationV.push_back(_Row-1);
+				_PieceCombinationV.push_back(_Col);
+			}
+			if (CheckLimitFoo(_Row+1,_Col) && ChessBoardBoolC[_Row+1][_Col] != BoolToNum) {
+				_PieceCombinationV.push_back(_Row+1);
+				_PieceCombinationV.push_back(_Col);
+			}
+			if (CheckLimitFoo(_Row,_Col-1) && ChessBoardBoolC[_Row][_Col-1] != BoolToNum) {
+				_PieceCombinationV.push_back(_Row);
+				_PieceCombinationV.push_back(_Col-1);
+			}
+			if (CheckLimitFoo(_Row,_Col+1) && ChessBoardBoolC[_Row][_Col+1] != BoolToNum) {
+				_PieceCombinationV.push_back(_Row);
+				_PieceCombinationV.push_back(_Col+1);
+			}
 			break;
 		case 'q':
+			if(_IsRed) {
+				for (int i = 1; i < 8;i++) {
+					if(ChessBoardBoolC[_Row+i][_Col] == 1) {
+						break;
+					}
+					if (CheckLimitFoo(_Row+i,_Col) && ChessBoardBoolC[_Row+i][_Col] != 1) {
+						_PieceCombinationV.push_back(_Row+i);
+						_PieceCombinationV.push_back(_Col);
+						if(ChessBoardBoolC[_Row+i][_Col] == 2) {
+							cout << "YO" << endl;
+							break;
+						}
+					}
+				}
+				for (int i = 1; i < 8;i++) {
+					if(ChessBoardBoolC[_Row-i][_Col] == 1) {
+						break;
+					}
+					if (CheckLimitFoo(_Row-i, _Col) && ChessBoardBoolC[_Row-i][_Col] != 1) {
+						_PieceCombinationV.push_back(_Row-i);
+						_PieceCombinationV.push_back(_Col); 
+						if(ChessBoardBoolC[_Row-i][_Col] == 2) {
+							break;
+						}
+					}
+				}
+
+				for (int i = 1; i < 8;i++) {
+					if(ChessBoardBoolC[_Row][_Col+i] == 1) {
+						break;
+					}
+					if (CheckLimitFoo(_Row, _Col+i) && ChessBoardBoolC[_Row][_Col+i] != 1) {
+						_PieceCombinationV.push_back(_Row);
+						_PieceCombinationV.push_back(_Col+i);
+						if(ChessBoardBoolC[_Row][_Col+i] == 2) {
+							break;
+						}
+					}
+				}
+				for (int i = 1; i < 8;i++) {
+					if (ChessBoardBoolC[_Row][_Col-i] == 1) {
+						break;
+					}
+					if (CheckLimitFoo(_Row, _Col-i) && ChessBoardBoolC[_Row][_Col-i] != 1) {
+						_PieceCombinationV.push_back(_Row);
+						_PieceCombinationV.push_back(_Col-i);
+						if(ChessBoardBoolC[_Row][_Col-i] == 2) {
+							break;
+						}
+					}
+				}
+			} else if (_IsBlack) {
+				for (int i = 1; i < 8;i++) {
+					if(ChessBoardBoolC[_Row+i][_Col] == 2) {
+						break;
+					}
+					if (CheckLimitFoo(_Row+i,_Col) && ChessBoardBoolC[_Row+i][_Col] != 2) {
+						_PieceCombinationV.push_back(_Row+i);
+						_PieceCombinationV.push_back(_Col);
+						if(ChessBoardBoolC[_Row+i][_Col] == 1) {
+							break;
+						}
+					}
+
+				}
+
+				for (int i = 1; i < 8;i++) {
+					if(ChessBoardBoolC[_Row-i][_Col] == 2) {
+						break;
+					}
+					if (CheckLimitFoo(_Row-i, _Col) && ChessBoardBoolC[_Row-i][_Col] != 2) {
+						_PieceCombinationV.push_back(_Row-i);
+						_PieceCombinationV.push_back(_Col); 
+						if(ChessBoardBoolC[_Row-i][_Col] == 1) {
+							break;
+						}
+					}
+				}
+
+				for (int i = 1; i < 8;i++) {
+					if(ChessBoardBoolC[_Row][_Col+i] == 2) {
+						break;
+					}
+					if (CheckLimitFoo(_Row, _Col+i) && ChessBoardBoolC[_Row][_Col+i] != 2) {
+						_PieceCombinationV.push_back(_Row);
+						_PieceCombinationV.push_back(_Col+i);
+						if(ChessBoardBoolC[_Row][_Col+i] == 1) {
+							break;
+						}
+					}
+				}
+				for (int i = 1; i < 8;i++) {
+					if (ChessBoardBoolC[_Row][_Col-i] == 2) {
+						break;
+					}
+					if (CheckLimitFoo(_Row, _Col-i) && ChessBoardBoolC[_Row][_Col-i] != 2) {
+						_PieceCombinationV.push_back(_Row);
+						_PieceCombinationV.push_back(_Col-i);
+						if(ChessBoardBoolC[_Row][_Col-i] == 1) {
+							break;
+						}
+					}
+				}
+			} else {
+				PrintError("ERROR while proccessing rook piece");
+			}
+			for (int i = 1; i < 8; i++) {
+				if (ChessBoardBoolC[_Row+i][_Col+i] == BoolToNum) {
+					break;
+				}
+				if (CheckLimitFoo(_Row+i,_Col+i) && ChessBoardBoolC[_Row+i][_Col+i] != BoolToNum) {
+					_PieceCombinationV.push_back(_Row+i);
+					_PieceCombinationV.push_back(_Col+i);
+					if (ChessBoardBoolC[_Row+i][_Col+i] == BoolToNumOpp) {
+						break;
+					}
+				}
+			}
+			
+			for (int i = 1; i < 8; i++) {
+				if (ChessBoardBoolC[_Row+i][_Col-i] == BoolToNum) {
+					break;
+				}
+				if (CheckLimitFoo(_Row+i,_Col-i) && ChessBoardBoolC[_Row+i][_Col-i] != BoolToNum) {
+					_PieceCombinationV.push_back(_Row+i);
+					_PieceCombinationV.push_back(_Col-i);
+					if (ChessBoardBoolC[_Row+i][_Col-i] == BoolToNumOpp) {
+						break;
+					}
+				}
+			}
+
+			for (int i = 1; i < 8; i++) {
+				if (ChessBoardBoolC[_Row-i][_Col+i] == BoolToNum) {
+					break;
+				}
+				if (CheckLimitFoo(_Row-i,_Col+i) && ChessBoardBoolC[_Row-i][_Col+i] != BoolToNum) {
+					_PieceCombinationV.push_back(_Row-i);
+					_PieceCombinationV.push_back(_Col+i);
+					if (ChessBoardBoolC[_Row-i][_Col+i] == BoolToNumOpp) {
+						break;
+					}
+				}
+			}
+
+			for (int i = 1; i < 8; i++) {
+				if (ChessBoardBoolC[_Row-i][_Col-i] == BoolToNum) {
+					break;
+				}
+				if (CheckLimitFoo(_Row-i,_Col-i) && ChessBoardBoolC[_Row-i][_Col-i] != BoolToNum) {
+					_PieceCombinationV.push_back(_Row-i);
+					_PieceCombinationV.push_back(_Col-i);
+					if (ChessBoardBoolC[_Row-i][_Col-i] == BoolToNumOpp) {
+						break;
+					}
+				}
+			}
 			break;
 	}
 	return _PieceCombinationV;
 }
 
+int combine(int a, int b) {
+	int times = 1;
+	while (times <= b){
+		times *= 10;
+	}
+	return a*times + b;
+} 
+
+bool ValidMoveQ(int _StartX, int _StartY, int _EndX, int _EndY) {
+	vector<int> _MoveCombinations = GetMovePossFromXY(_StartX, _StartY);
+	int _counter1 = 0;
+	if (_MoveCombinations.size() == 0) {
+		return false;
+	}
+	int _FinalNum = combine(_EndX+1,_EndY+1);
+	while(!_MoveCombinations.empty()) {
+		int _YCounter = _MoveCombinations.back()+1;
+		_MoveCombinations.pop_back();
+		int _XCounter = _MoveCombinations.back()+1;
+		_MoveCombinations.pop_back();
+		int _conCate = combine(_XCounter,_YCounter);
+		if (_conCate == _FinalNum) {
+			return true;
+		}
+	}
+	return false;
+}
+
+void MovePiece(int StartIndex, int StartIndexY, int EndIndex, int EndIndexY) {
+	if (ChessBoard[StartIndex][StartIndexY] == '#') {
+		PrintError("The selected location has no containing piece!");
+	} else if (StartIndex < 8 && StartIndexY < 8 && EndIndex < 8 && EndIndexY < 8 && ValidMoveQ(StartIndex, StartIndexY, EndIndex, EndIndexY)) {
+		ChessBoardBoolC[EndIndex][EndIndexY] = ChessBoardBoolC[StartIndex][StartIndexY];
+		ChessBoardBoolC[StartIndex][StartIndexY] = 0;
+		
+		ChessBoard[EndIndex][EndIndexY] = ChessBoard[StartIndex][StartIndexY];
+		ChessBoard[StartIndex][StartIndexY] = '#';
+	} else {
+		PrintError("Not A Valid Move!");
+	}
+}
 
 int main() {
-	/*while(true) {
+	while(true) {
 		PrintBoard();
 		SaveBoardToLog();
 		int StartX = 0;
@@ -317,15 +663,7 @@ int main() {
 		cout << endl;
 		cout << endl;
 		cout << endl;
-
-	}*/
-	PrintBoard();
-	vector<int> Combinations = GetMovePossFromXY(3,3);
-
-	for (int i = 0; i < Combinations.size(); i++) {
-		cout << Combinations[i] << "   ";
 	}
-	cout << endl;
 	return 0;
 }
 
