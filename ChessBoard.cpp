@@ -30,33 +30,25 @@ using namespace std;
 
 /*-------IMPORTANT DEFINITIONS-------*/
 ofstream fout ("ChessGame.log");
-char ChessBoard[8][8] = {
-	{'r','n','b','k','q','b','n','r'},
-	{'p','p','p','p','p','p','p','p'},
-	{'#','#','#','#','#','#','#','#'},
-	{'#','#','#','#','#','#','#','#'},
-	{'#','#','#','#','#','#','#','#'},
-	{'#','#','#','#','#','#','#','#'},
-	{'p','p','p','p','p','p','p','p'},
-	{'r','n','b','k','q','b','n','r'}};
-int ChessBoardBoolC[8][8] = {
-	{1,1,1,1,1,1,1,1},
-	{1,1,1,1,1,1,1,1},
-	{0,0,0,0,0,0,0,0},
-	{0,0,0,0,0,0,0,0},
-	{0,0,0,0,0,0,0,0},
-	{0,0,0,0,0,0,0,0},
-	{2,2,2,2,2,2,2,2},
-	{2,2,2,2,2,2,2,2}};
 //Other are included in ChessBoard.h file.
 /*------------------------------------*/
 
-void PrintError(string errMessage) {
+ChessBoardDef::ChessBoardDef(char _ChessBoard[8][8], int _ChessBoardBoolC[8][8]) {
+	for (int a = 0; a < 8; a++) {
+		for (int b = 0; b < 8; b++) {
+			ChessBoard[a][b] = _ChessBoard[a][b];
+			ChessBoardBoolC[a][b] = _ChessBoardBoolC[a][b];
+		}
+	}
+
+}
+
+void ChessBoardDef::PrintError(string errMessage) {
 	cout << "\033[1;31mERROR: \033[0m";
 	cout << errMessage << endl;
 }
 
-void PrintBoard() {
+void ChessBoardDef::PrintBoard() {
 	cout << "    | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 |" << endl;
 	cout << "------------------------------------" << endl;
 	for (int a = 0; a < 8; a++) {
@@ -76,7 +68,7 @@ void PrintBoard() {
 	}
 }
 
-void SaveBoardToLog() {
+void ChessBoardDef::SaveBoardToLog() {
 	fout << "    | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 |" << endl;
 	fout << "------------------------------------" << endl;
 	for (int a = 0; a < 8; a++) {
@@ -94,7 +86,7 @@ void SaveBoardToLog() {
 	fout << endl;
 }
 
-bool CheckLimitFoo(int _LimitRowMax, int _LimitColMax) {
+bool ChessBoardDef::CheckLimitFoo(int _LimitRowMax, int _LimitColMax) {
 	if (_LimitRowMax <= 7 && _LimitRowMax >= 0 && _LimitColMax >= 0 && _LimitColMax <= 7) {
 		return true;
 	} else {
@@ -102,7 +94,7 @@ bool CheckLimitFoo(int _LimitRowMax, int _LimitColMax) {
 	}
 }
 
-vector<int> GetMovePossFromXY(int _Row, int _Col) {
+vector<int> ChessBoardDef::GetMovePossFromXY(int _Row, int _Col) {
 	vector<int> _PieceCombinationV;
 	if(ChessBoard[_Row][_Col] == '#') {
 		PrintError("Selected Location Does Not Contain Piece!");
@@ -603,7 +595,7 @@ vector<int> GetMovePossFromXY(int _Row, int _Col) {
 	return _PieceCombinationV;
 }
 
-int combine(int a, int b) {
+int ChessBoardDef::combine(int a, int b) {
 	int times = 1;
 	while (times <= b){
 		times *= 10;
@@ -611,7 +603,7 @@ int combine(int a, int b) {
 	return a*times + b;
 } 
 
-bool ValidMoveQ(int _StartX, int _StartY, int _EndX, int _EndY) {
+bool ChessBoardDef::ValidMoveQ(int _StartX, int _StartY, int _EndX, int _EndY) {
 	vector<int> _MoveCombinations = GetMovePossFromXY(_StartX, _StartY);
 	int _counter1 = 0;
 	if (_MoveCombinations.size() == 0) {
@@ -631,9 +623,13 @@ bool ValidMoveQ(int _StartX, int _StartY, int _EndX, int _EndY) {
 	return false;
 }
 
-void MovePiece(int StartIndex, int StartIndexY, int EndIndex, int EndIndexY) {
+void ChessBoardDef::MovePiece(int StartIndex, int StartIndexY, int EndIndex, int EndIndexY) {
+	int BlackWhiteQ = ChessBoardBoolC[StartIndex][StartIndexY];
+	
 	if (ChessBoard[StartIndex][StartIndexY] == '#') {
 		PrintError("The selected location has no containing piece!");
+	} else if (ChessBoard[EndIndex][EndIndexY] == 'k') {
+		PrintError("You CANNOT eleiminate the King, you can only CAPTURE it!");
 	} else if (StartIndex < 8 && StartIndexY < 8 && EndIndex < 8 && EndIndexY < 8 && ValidMoveQ(StartIndex, StartIndexY, EndIndex, EndIndexY)) {
 		ChessBoardBoolC[EndIndex][EndIndexY] = ChessBoardBoolC[StartIndex][StartIndexY];
 		ChessBoardBoolC[StartIndex][StartIndexY] = 0;
@@ -645,20 +641,44 @@ void MovePiece(int StartIndex, int StartIndexY, int EndIndex, int EndIndexY) {
 	}
 }
 
-bool KingThreatQ(int BorW) {
+bool ChessBoardDef::KingThreatQ(int BorW) {
 	for (int a = 0; a < 8; a++) {
 		for (int b = 0; b < 8; b++) {
-			vector<int> Poss = GetMovePossFromXY(a,b);
-			while(!Poss.empty()) {
-				int _YCounter = Poss.back()+1;
-				Poss.pop_back();
-				int _XCounter = Poss.back()+1;
-				Poss.pop_back();
-				if (ChessBoard[_XCounter][_YCounter] == 'k' && ChessBoardBoolC[_XCounter][_YCounter] == BorW) {
-					return true;
+			if (ChessBoard[a][b] != '#') {
+				vector<int> Poss = GetMovePossFromXY(a,b);
+				while(!Poss.empty()) {
+					int _YCounter = Poss.back()+1;
+					Poss.pop_back();
+					int _XCounter = Poss.back()+1;
+					Poss.pop_back();
+					if (ChessBoard[_XCounter][_YCounter] == 'k' && ChessBoardBoolC[_XCounter][_YCounter] == BorW) {
+						return true;
+					}
 				}
 			}
 		}
 	}
 	return false;
+}
+
+void UpdatePawns() {
+	for (int a = 0; a < 8; a++) {
+		for (int b = 0; b < 8; b++) {
+			if (ChessBoard[a][b] == 'p' && (a == 0 || a == 7)) {
+				ChessBoard[a][b] = 'q';
+			}
+		}
+	}
+}
+
+void Update() {
+	if (KingThreatQ(1)) {
+		BlackMate = true;
+	} else if (KingThreatQ(2)) {
+		WhiteMate = true;
+	} else {
+		BlackMate = false;
+		WhiteMate = false;
+	}
+	UpdatePawns();
 }
