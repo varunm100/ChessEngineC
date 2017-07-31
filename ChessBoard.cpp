@@ -661,7 +661,7 @@ bool ChessBoardDef::KingThreatQ(int BorW) {
 	return false;
 }
 
-void UpdatePawns() {
+void ChessBoardDef::UpdatePawns() {
 	for (int a = 0; a < 8; a++) {
 		for (int b = 0; b < 8; b++) {
 			if (ChessBoard[a][b] == 'p' && (a == 0 || a == 7)) {
@@ -671,7 +671,7 @@ void UpdatePawns() {
 	}
 }
 
-void Update() {
+void ChessBoardDef::Update() {
 	if (KingThreatQ(1)) {
 		BlackMate = true;
 	} else if (KingThreatQ(2)) {

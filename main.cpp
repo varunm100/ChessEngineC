@@ -26,6 +26,7 @@ int main() {
 	while(true) {
 		MainChessBoard.PrintBoard();
 		MainChessBoard.SaveBoardToLog();
+		MainChessBoard.Update();
 		int StartX = 0;
 		int StartY = 0;
 		int UsrMoveX = 0;

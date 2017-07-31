@@ -27,5 +27,7 @@ public:
 	bool ValidMoveQ(int _StartX, int _StartY, int _EndX, int _EndY);
 	void MovePiece(int StartIndex, int StartIndexY, int EndIndex, int EndIndexY);
 	bool KingThreatQ(int BorW);
+	void UpdatePawns();
+	void Update();
 	/*int EvalPosition()*/
 };
