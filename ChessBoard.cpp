@@ -169,7 +169,6 @@ vector<int> ChessBoardDef::GetMovePossFromXY(int _Row, int _Col) {
 						_PieceCombinationV.push_back(_Row+i);
 						_PieceCombinationV.push_back(_Col);
 						if(ChessBoardBoolC[_Row+i][_Col] == 2) {
-							cout << "YO" << endl;
 							break;
 						}
 					}
@@ -442,7 +441,6 @@ vector<int> ChessBoardDef::GetMovePossFromXY(int _Row, int _Col) {
 						_PieceCombinationV.push_back(_Row+i);
 						_PieceCombinationV.push_back(_Col);
 						if(ChessBoardBoolC[_Row+i][_Col] == 2) {
-							cout << "YO" << endl;
 							break;
 						}
 					}

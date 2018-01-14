@@ -36,7 +36,6 @@ int main() {
 		cout << "Where Should The Piece Move To?: ";
 		cin >> UsrMoveX >> UsrMoveY;
 		MainChessBoard.MovePiece(StartX, StartY, UsrMoveX, UsrMoveY);
- 		//Best number found is 38 endl's
 		cout << "King State: " << MainChessBoard.KingThreatQ(1) << endl;
 		cout << "King State: " << MainChessBoard.KingThreatQ(2) << endl;
 	}
